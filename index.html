@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Conveyor Sorting System - HCM UTE Group 3</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,Geneva,sans-serif; }
+body { background:#0b1329; color:#94a3b8; min-height:100vh; overflow-x:hidden; }
+
+/* LOGIN */
+.login-screen { display:flex; min-height:100vh; align-items:center; justify-content:center; padding:20px; background:radial-gradient(circle at center,#1e293b 0%,#0f172a 100%); }
+.login-card { background:#1e293b; max-width:420px; width:100%; padding:35px 30px; border-radius:16px; border:1px solid #334155; box-shadow:0 20px 50px rgba(0,0,0,0.7); text-align:center; }
+.login-logo { width:80px; height:80px; margin:0 auto 15px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:40px; border:2px solid #38bdf8; box-shadow:0 0 15px rgba(56,189,248,0.4); }
+.login-title { font-size:20px; color:#38bdf8; font-weight:800; margin-bottom:4px; }
+.login-subtitle { font-size:12px; color:#64748b; margin-bottom:22px; }
+.login-error { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444; padding:10px; border-radius:8px; font-size:13px; margin-bottom:18px; display:none; text-align:left; }
+.input-group { position:relative; margin-bottom:16px; text-align:left; }
+.input-group i { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#64748b; }
+.input-group input { width:100%; padding:13px 15px 13px 45px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#f8fafc; font-size:14px; outline:none; }
+.input-group input:focus { border-color:#38bdf8; box-shadow:0 0 8px rgba(56,189,248,0.3); }
+.login-note { font-size:11px; color:#38bdf8; margin-top:4px; padding-left:4px; font-weight:600; }
+.btn-login { width:100%; padding:13px; background:#0284c7; border:none; border-radius:8px; color:#fff; font-weight:bold; cursor:pointer; font-size:15px; margin-top:6px; }
+.btn-login:hover { background:#0369a1; }
+
+/* DASHBOARD */
+.dashboard { display:none; min-height:100vh; flex-direction:column; }
+.dashboard.active { display:flex; }
+
+/* NAVBAR */
+.navbar { background:#1e293b; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #334155; flex-wrap:wrap; gap:10px; }
+.nav-brand { display:flex; align-items:center; gap:12px; }
+.nav-logo { width:38px; height:38px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.nav-title { font-weight:800; font-size:18px; color:#38bdf8; letter-spacing:0.5px; }
+.nav-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.account-box { display:flex; align-items:center; gap:10px; background:#0f172a; padding:6px 12px; border-radius:10px; border:1px solid #38bdf8; flex-wrap:wrap; }
+.account-info { display:flex; flex-direction:column; text-align:left; }
+.account-label { font-size:10px; font-weight:800; color:#38bdf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+.account-name { font-size:13.5px; font-weight:700; color:#fff; display:flex; align-items:center; gap:6px; }
+.role-badge { background:#0284c7; color:#fff; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:bold; }
+.btn-profile { background:#059669; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; }
+.btn-profile:hover { background:#10b981; }
+.btn-logout { background:#dc2626; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; }
+.btn-logout:hover { background:#b91c1c; }
+
+/* MAIN LAYOUT */
+.main-layout { display:flex; flex:1; }
+.sidebar { width:260px; background:#1e293b; padding:18px 12px; border-right:1px solid #334155; flex-shrink:0; }
+.menu-header { font-size:12px; color:#38bdf8; font-weight:800; margin-bottom:12px; padding-left:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.menu { list-style:none; }
+.menu li { padding:10px 12px; font-size:13px; color:#94a3b8; cursor:pointer; border-radius:8px; margin-bottom:5px; display:flex; align-items:center; gap:10px; transition:0.2s; }
+.menu li.active, .menu li:hover { background:#0284c7; color:#fff; font-weight:600; }
+.content { flex:1; background:#0b1329; padding:18px; overflow-y:auto; min-width:0; }
+.tab-section { display:none; }
+.tab-section.active { display:block; }
+
+/* STAT CARDS */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:18px; }
+.stat-card { background:#1e293b; padding:16px; border-radius:12px; border:1px solid #334155; box-shadow:0 8px 16px rgba(0,0,0,0.25); position:relative; overflow:hidden; }
+.stat-card h4 { font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.stat-card .val { font-size:34px; font-weight:900; line-height:1; }
+.stat-card .icon { position:absolute; right:15px; bottom:15px; font-size:32px; opacity:0.15; }
+.stat-card.red { border-left:5px solid #ef4444; }
+.stat-card.red .val { color:#f87171; }
+.stat-card.yellow { border-left:5px solid #eab308; }
+.stat-card.yellow .val { color:#facc15; }
+.stat-card.white { border-left:5px solid #f8fafc; }
+.stat-card.white .val { color:#fff; }
+.stat-card.reject { border-left:5px solid #64748b; }
+.stat-card.reject .val { color:#cbd5e1; }
+
+/* CAMERA */
+.camera-card { background:#1e293b; border-radius:12px; border:1px solid #334155; padding:14px; margin-bottom:18px; }
+.camera-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px; }
+.camera-title { color:#38bdf8; font-size:13.5px; font-weight:700; }
+.camera-controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.cam-badge { background:#166534; color:#4ade80; font-size:10px; font-weight:700; padding:3px 8px; border-radius:10px; }
+.cam-input-box { display:flex; gap:8px; margin-bottom:10px; background:#0f172a; padding:10px; border-radius:8px; border:1px solid #38bdf8; flex-wrap:wrap; }
+.cam-input-box input { flex:1; min-width:200px; padding:8px 12px; background:#1e293b; border:1px solid #334155; color:#f8fafc; border-radius:6px; font-size:12px; outline:none; }
+.cam-input-box button { padding:8px 16px; background:#059669; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; }
+.camera-stream { width:100%; height:260px; background:#000; border-radius:8px; overflow:hidden; display:flex; justify-content:center; align-items:center; }
+.camera-stream img { max-width:100%; max-height:100%; object-fit:contain; }
+
+/* TABLES */
+.table-container { background:#1e293b; border-radius:10px; border:1px solid #334155; padding:14px; overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:500px; }
+th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #334155; white-space:nowrap; }
+th { color:#94a3b8; font-weight:700; background:#0f172a; text-transform:uppercase; font-size:11px; letter-spacing:0.5px; }
+td { color:#e2e8f0; }
+
+/* BUTTONS */
+.btn { padding:8px 14px; border:none; border-radius:6px; font-weight:bold; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:0.2s; }
+.btn-primary { background:#0284c7; color:#fff; }
+.btn-primary:hover { background:#0369a1; }
+.btn-danger { background:#dc2626; color:#fff; }
+.btn-danger:hover { background:#b91c1c; }
+.btn-success { background:#16a34a; color:#fff; }
+.btn-success:hover { background:#15803d; }
+.btn-warning { background:#eab308; color:#0f172a; }
+.btn-warning:hover { background:#ca8a04; }
+.btn-block { display:flex; width:100%; justify-content:center; padding:12px; font-size:14px; }
+
+/* BADGES */
+.badge { padding:3px 8px; border-radius:6px; font-size:10.5px; font-weight:bold; display:inline-block; }
+.badge.success { background:#166534; color:#4ade80; }
+.badge.danger { background:#991b1b; color:#f87171; }
+.badge.warning { background:#854d0e; color:#facc15; }
+
+/* ENV BAR */
+.env-bar { background:#070d19; border-top:2px solid #0284c7; display:grid; grid-template-columns:repeat(4,1fr); text-align:center; color:#fff; }
+.env-item { padding:10px 6px; border-right:1px solid #1e293b; }
+.env-item:last-child { border-right:none; }
+.env-label { font-size:10px; color:#94a3b8; margin-bottom:2px; text-transform:uppercase; font-weight:700; }
+.env-value { font-size:16px; font-weight:800; }
+.env-value.temp { color:#f87171; }
+.env-value.humid { color:#38bdf8; }
+.env-value.sun { color:#facc15; }
+.env-value.time { font-size:12px; color:#34d399; }
+
+/* MODALS */
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,7,18,0.88); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:1000; padding:15px; }
+.modal-overlay.active { display:flex; }
+.modal-card { background:#1e293b; border:2px solid #38bdf8; border-radius:14px; padding:20px 22px; width:100%; max-width:500px; color:#f8fafc; position:relative; max-height:90vh; overflow-y:auto; }
+.modal-title { font-size:16px; font-weight:800; margin-bottom:15px; border-bottom:2px solid #334155; padding-bottom:8px; display:flex; align-items:center; gap:8px; }
+.modal-close { position:absolute; top:12px; right:16px; cursor:pointer; font-size:22px; color:#ef4444; font-weight:bold; background:none; border:none; }
+.modal-btn-group { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+.modal-btn { flex:1; min-width:120px; padding:10px; border:none; border-radius:8px; font-weight:bold; font-size:13px; cursor:pointer; }
+.modal-btn.primary { background:#0284c7; color:#fff; }
+.modal-btn.danger { background:#dc2626; color:#fff; }
+.modal-btn.secondary { background:#475569; color:#fff; }
+.profile-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #334155; font-size:13px; flex-wrap:wrap; gap:5px; }
+.profile-row:last-child { border-bottom:none; }
+.profile-label { color:#38bdf8; font-weight:600; }
+.profile-value { color:#facc15; font-weight:700; text-align:right; }
+
+/* QR SCANNER */
+.scanner-card { background:#0f172a; border:2px solid #38bdf8; border-radius:16px; padding:16px; text-align:center; max-width:480px; margin:0 auto 18px; }
+.scanner-frame { position:relative; width:260px; height:260px; margin:12px auto; border-radius:14px; overflow:hidden; border:3px solid #0284c7; background:#000; }
+#qr-reader { width:100% !important; height:100% !important; border:none !important; }
+#qr-reader video { width:100% !important; height:100% !important; object-fit:cover !important; }
+.scan-line { width:90%; height:2px; background:#38bdf8; box-shadow:0 0 12px #38bdf8,0 0 20px #38bdf8; position:absolute; left:5%; animation:scanMove 2.2s ease-in-out infinite alternate; pointer-events:none; z-index:5; }
+@keyframes scanMove { 0% { top:15%; } 100% { top:85%; } }
+
+/* WHEEL */
+.wheel-modal { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.92); backdrop-filter:blur(8px); z-index:1200; justify-content:center; align-items:center; padding:15px; }
+.wheel-modal.active { display:flex; }
+.wheel-container { background:#0f172a; border:3px solid #facc15; border-radius:24px; padding:30px 25px; width:100%; max-width:600px; color:#f8fafc; text-align:center; }
+#wheelCanvas { width:400px; height:400px; max-width:85vw; max-height:85vw; display:block; margin:15px auto; border-radius:50%; border:8px solid #eab308; box-shadow:0 0 25px rgba(234,179,8,0.4); }
+.btn-spin { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; padding:14px 38px; border-radius:30px; font-size:18px; font-weight:bold; cursor:pointer; }
+
+/* GAME */
+.game-wrapper { background:#1e293b; border-radius:16px; padding:18px; margin-bottom:18px; border:2px solid #f59e0b; }
+.game-header { color:#f59e0b; font-size:16px; font-weight:bold; margin-bottom:12px; border-bottom:2px solid rgba(245,158,11,0.3); padding-bottom:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.game-stats { display:flex; justify-content:space-between; font-size:13px; font-weight:bold; color:#facc15; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
+.game-canvas-box { width:100%; height:280px; background:linear-gradient(to bottom,#38bdf8,#bae6fd); border:3px solid #f59e0b; border-radius:12px; overflow:hidden; }
+#gameCanvas { width:100%; height:100%; display:block; }
+.game-controls { display:flex; justify-content:center; gap:12px; margin-top:12px; flex-wrap:wrap; }
+.game-btn { padding:10px 20px; border:none; border-radius:8px; font-weight:bold; color:#fff; cursor:pointer; font-size:14px; }
+.game-btn.start { background:#16a34a; }
+.game-btn.jump { background:#0284c7; }
+.game-status { text-align:center; margin-top:10px; font-size:13px; font-weight:bold; color:#4ade80; min-height:20px; }
+
+/* TOAST */
+.toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; }
+.toast { background:#1e293b; border-left:4px solid #38bdf8; padding:12px 18px; border-radius:8px; color:#f8fafc; font-size:13px; min-width:260px; box-shadow:0 8px 20px rgba(0,0,0,0.4); animation:slideIn 0.3s ease; }
+.toast.success { border-left-color:#22c55e; }
+.toast.warning { border-left-color:#eab308; }
+.toast.error { border-left-color:#ef4444; }
+@keyframes slideIn { from { transform:translateX(400px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+/* FIRE ALARM */
+.fire-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(127,29,29,0.92); backdrop-filter:blur(5px); display:none; justify-content:center; align-items:center; z-index:2000; padding:15px; }
+.fire-modal.active { display:flex; }
+.fire-card { background:#1e293b; border:3px solid #ef4444; border-radius:16px; padding:30px; max-width:500px; width:100%; text-align:center; color:#fff; animation:firePulse 1s infinite; }
+@keyframes firePulse { 0%,100% { box-shadow:0 0 30px rgba(239,68,68,0.6); } 50% { box-shadow:0 0 60px rgba(239,68,68,1); } }
+.fire-icon { font-size:64px; margin-bottom:15px; }
+.fire-title { color:#ef4444; font-size:22px; font-weight:900; margin-bottom:15px; }
+.fire-message { color:#fca5a5; font-size:14px; margin-bottom:20px; line-height:1.6; }
+
+/* UTILS */
+.hidden { display:none !important; }
+
+/* RESPONSIVE */
+@media (max-width:768px) {
+    .main-layout { flex-direction:column; }
+    .sidebar { width:100%; border-right:none; border-bottom:1px solid #334155; }
+    .menu { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px; }
+    .menu li { margin-bottom:0; font-size:12px; padding:8px 10px; justify-content:center; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
+    .env-bar { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head> 
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🎓</div>
+    <h1 class="login-title">CONVEYOR SORTING SYSTEM</h1>
+    <p class="login-subtitle">Smart Industrial Automation - HCM UTE Group 3</p>
+    <div id="loginError" class="login-error"></div>
+    <form id="loginForm">
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="username" placeholder="Username..." required>
+      </div>
+      <span class="login-note">VD: giaphuc (không dấu, không cách)</span>
+      <div class="input-group" style="margin-top:16px;">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="password" placeholder="Password (MSSV)..." required>
+      </div>
+      <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+    </form>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div id="dashboardScreen" class="dashboard">
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">🎓</div>
+      <div class="nav-title">SMART SORTING SYSTEM</div>
+    </div>
+    <div class="nav-actions">
+      <div class="account-box">
+        <div class="account-info">
+          <span class="account-label"><i class="fa-solid fa-user-gear"></i> TÀI KHOẢN</span>
+          <span class="account-name">
+            <span id="userDisplayName">---</span>
+            <span class="role-badge" id="roleBadge">WORKER</span>
+          </span>
+        </div>
+        <button class="btn-profile" onclick="openProfile()"><i class="fa-solid fa-id-card"></i> Hồ sơ</button>
+        <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="menu-header"><i class="fa-solid fa-bars"></i> ĐIỀU HƯỚNG</div>
+      <ul class="menu">
+        <li class="menu-item active" data-tab="tabProduct"><i class="fa-solid fa-boxes-stacked"></i> Phân loại SP</li>
+        <li class="menu-item" data-tab="tabQR"><i class="fa-solid fa-qrcode"></i> QR Check-in</li>
+        <li class="menu-item" data-tab="tabAttendance"><i class="fa-solid fa-id-card"></i> Điểm danh</li>
+        <li class="menu-item" data-tab="tabGame"><i class="fa-solid fa-gamepad"></i> Mini Game</li>
+        <li class="menu-item" data-tab="tabWheel"><i class="fa-solid fa-gift"></i> Vòng quay</li>
+        <li class="menu-item" data-tab="tabHardware"><i class="fa-solid fa-microchip"></i> Thiết bị</li>
+      </ul>
+      <div id="managerActions" style="display:none; margin-top:20px;">
+        <div class="menu-header"><i class="fa-solid fa-shield"></i> QUẢN LÝ</div>
+        <button class="btn btn-danger btn-block" style="margin-bottom:8px;" onclick="triggerEstop()">
+          <i class="fa-solid fa-power-off"></i> EMERGENCY STOP
+        </button>
+        <button class="btn btn-success btn-block" style="margin-bottom:8px;" onclick="triggerResume()">
+          <i class="fa-solid fa-play"></i> RESUME MOTOR
+        </button>
+        <button class="btn btn-warning btn-block" style="margin-bottom:8px;" onclick="triggerBuzzer()">
+          <i class="fa-solid fa-bullhorn"></i> BẬT CÒI
+        </button>
+        <button class="btn btn-primary btn-block" onclick="resetCounters()">
+          <i class="fa-solid fa-rotate-left"></i> RESET BỘ ĐẾM
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- TAB 1: PRODUCT -->
+      <div id="tabProduct" class="tab-section active">
+        <div class="camera-card">
+          <div class="camera-header">
+            <div class="camera-title"><i class="fa-solid fa-video"></i> CAMERA BĂNG CHUYỀN</div>
+            <div class="camera-controls">
+              <span class="cam-badge"><i class="fa-solid fa-circle"></i> LIVE</span>
+            </div>
+          </div>
+          <div class="cam-input-box">
+            <input type="text" id="camUrlInput" placeholder="Nhập URL IP Camera (VD: http://192.168.1.100:8080)">
+            <button onclick="applyCamUrl()"><i class="fa-solid fa-floppy-disk"></i> LƯU</button>
+          </div>
+          <div class="camera-stream">
+            <img id="cameraStream" src="" alt="Live Stream" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'260\'><rect width=\'400\' height=\'260\' fill=\'%23000\'/><text x=\'50%\' y=\'50%\' fill=\'%2338bdf8\' font-size=\'16\' text-anchor=\'middle\' dy=\'.3em\'>Chưa có tín hiệu Camera</text></svg>'">
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card red">
+            <h4>RED OBJECTS</h4>
+            <div class="val" id="countRed">0</div>
+            <i class="fa-solid fa-box icon"></i>
+          </div>
+          <div class="stat-card yellow">
+            <h4>YELLOW OBJECTS</h4>
+            <div class="val" id="countYellow">0</div>
+            <i class="fa-solid fa-box icon"></i>
+          </div>
+          <div class="stat-card white">
+            <h4>WHITE OBJECTS</h4>
+            <div class="val" id="countWhite">0</div>
+            <i class="fa-solid fa-box icon"></i>
+          </div>
+          <div class="stat-card reject">
+            <h4>REJECTED</h4>
+            <div class="val" id="countReject">0</div>
+            <i class="fa-solid fa-triangle-exclamation icon"></i>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Loại sản phẩm</th><th>Nguồn cảm biến</th><th>Số lượng</th><th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Đỏ (Red)</td><td>HuskyLens AI - ID 1</td><td id="tbRed" style="font-weight:bold;color:#ef4444;">0</td><td><span class="badge success" id="statusRed">RUNNING</span></td></tr>
+              <tr><td>2</td><td>Vàng (Yellow)</td><td>HuskyLens AI - ID 2</td><td id="tbYellow" style="font-weight:bold;color:#facc15;">0</td><td><span class="badge success" id="statusYellow">RUNNING</span></td></tr>
+              <tr><td>3</td><td>Trắng (White)</td><td>HuskyLens AI - ID 3</td><td id="tbWhite" style="font-weight:bold;color:#fff;">0</td><td><span class="badge success" id="statusWhite">RUNNING</span></td></tr>
+              <tr><td>4</td><td>Loại (Reject)</td><td>HuskyLens AI - ID 4</td><td id="tbReject" style="font-weight:bold;color:#cbd5e1;">0</td><td><span class="badge danger" id="statusReject">REJECT</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: QR SCANNER -->
+      <div id="tabQR" class="tab-section">
+        <div class="scanner-card">
+          <h3 style="color:#38bdf8;font-size:15px;margin-bottom:5px;">
+            <i class="fa-solid fa-camera"></i> QUÉT QR ĐỂ ĐIỂM DANH
+          </h3>
+          <p style="font-size:12px;color:#cbd5e1;">Đưa mã QR vào khung. Quét thành công sẽ tự gửi lệnh mở cổng Servo xuống ESP32.</p>
+          <div class="scanner-frame">
+            <div id="qr-reader"></div>
+            <div class="scan-line"></div>
+          </div>
+          <div id="qrFeedback" style="font-size:13px;font-weight:bold;color:#4ade80;min-height:24px;margin-top:8px;">
+            Đang chờ quét mã QR...
+          </div>
+          <div style="background:#1e293b;border:1px solid #334155;padding:10px;border-radius:10px;margin-top:12px;font-size:12px;font-weight:bold;">
+            TRẠNG THÁI CỔNG SERVO: <span id="servoBadge" class="badge danger">ĐÓNG</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: ATTENDANCE -->
+      <div id="tabAttendance" class="tab-section">
+        <h2 style="font-size:17px;color:#f8fafc;margin-bottom:15px;">
+          <i class="fa-solid fa-id-card"></i> LỊCH SỬ ĐIỂM DANH
+        </h2>
+        <div class="table-container">
+          <button class="btn btn-success" onclick="exportAttendance()" style="margin-bottom:12px;">
+            <i class="fa-solid fa-file-excel"></i> Xuất CSV
+          </button>
+          <table>
+            <thead>
+              <tr><th>#</th><th>Họ tên</th><th>MSSV</th><th>Thời gian</th><th>Trạng thái</th></tr>
+            </thead>
+            <tbody id="attendanceBody">
+              <tr><td colspan="5" style="text-align:center;color:#64748b;">Chưa có lượt điểm danh nào</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: GAME -->
+      <div id="tabGame" class="tab-section">
+        <div class="game-wrapper">
+          <div class="game-header">
+            <span><i class="fa-solid fa-gamepad"></i> Mini Game Hái Hoa 🌸</span>
+            <span style="font-size:12px;color:#cbd5e1;">Nhấn SPACE hoặc CLICK để nhảy</span>
+          </div>
+          <div class="game-stats">
+            <span>🌸 Hoa: <span id="gameScore" style="color:#f43f5e;font-size:15px;">0</span></span>
+            <span>⏱ Thời gian: <span id="gameTime" style="color:#facc15;font-size:15px;">30</span>s</span>
+            <span>❤️ Mạng: <span id="gameLives" style="color:#ef4444;font-size:15px;">3</span></span>
+          </div>
+          <div class="game-canvas-box">
+            <canvas id="gameCanvas" width="850" height="280"></canvas>
+          </div>
+          <div class="game-controls">
+            <button class="game-btn start" id="btnStartGame"><i class="fa-solid fa-play"></i> CHƠI GAME</button>
+            <button class="game-btn jump" id="btnJumpGame"><i class="fa-solid fa-arrow-up"></i> NHẢY</button>
+          </div>
+          <p id="gameStatus" class="game-status"></p>
+        </div>
+      </div>
+
+      <!-- TAB 5: WHEEL -->
+      <div id="tabWheel" class="tab-section">
+        <div class="table-container" style="text-align:center;padding:40px;">
+          <h2 style="color:#facc15;font-size:22px;margin-bottom:15px;">🎁 VÒNG QUAY MAY MẮN</h2>
+          <p style="font-size:13px;color:#cbd5e1;margin-bottom:20px;">Quay ngẫu nhiên để chọn người may mắn từ danh sách điểm danh hôm nay</p>
+          <button class="btn-spin" onclick="openWheel()">MỞ VÒNG QUAY 🎡</button>
+        </div>
+      </div>
+
+      <!-- TAB 6: HARDWARE -->
+      <div id="tabHardware" class="tab-section">
+        <h2 style="font-size:17px;color:#f8fafc;margin-bottom:15px;">
+          <i class="fa-solid fa-microchip"></i> THÔNG SỐ PHẦN CỨNG
+        </h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr><th>Thiết bị</th><th>Chân GPIO</th><th>Trạng thái</th><th>Loại</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cảm biến màu HuskyLens</td><td>I2C - G4/G5</td><td><span class="badge success">Connected</span></td><td>AI Vision</td></tr>
+              <tr><td>Cảm biến DHT11</td><td>GPIO 16</td><td><span class="badge success">Connected</span></td><td>Nhiệt/Ẩm</td></tr>
+              <tr><td>Cảm biến lửa</td><td>GPIO 17</td><td><span class="badge success">Connected</span></td><td>An toàn</td></tr>
+              <tr><td>Buzzer</td><td>GPIO 18</td><td><span class="badge success">Ready</span></td><td>Output</td></tr>
+              <tr><td>Relay động cơ</td><td>GPIO 23</td><td><span class="badge success">Ready</span></td><td>Output</td></tr>
+              <tr><td>Servo 1 (Đỏ/Vàng)</td><td>GPIO 12</td><td><span class="badge success">Ready</span></td><td>PWM</td></tr>
+              <tr><td>Servo 2 (Trắng/Loại)</td><td>GPIO 13</td><td><span class="badge success">Ready</span></td><td>PWM</td></tr>
+              <tr><td>Servo 3 (Cổng)</td><td>GPIO 14</td><td><span class="badge success">Ready</span></td><td>PWM</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-container" style="margin-top:15px;">
+          <h3 style="color:#38bdf8;font-size:14px;margin-bottom:10px;">TRẠNG THÁI KẾT NỐI FIREBASE</h3>
+          <div class="profile-row">
+            <span class="profile-label">URL Firebase:</span>
+            <span class="profile-value" id="fbUrlDisplay">---</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Trạng thái:</span>
+            <span class="profile-value" id="fbStatusDisplay">Đang kiểm tra...</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Lần sync cuối:</span>
+            <span class="profile-value" id="fbLastSync">---</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ENV BAR FOOTER -->
+  <footer class="env-bar">
+    <div class="env-item">
+      <i class="fa-solid fa-temperature-high"></i>
+      <div class="env-label">Nhiệt độ</div>
+      <div class="env-value temp"><span id="envTemp">--</span> °C</div>
+    </div>
+    <div class="env-item">
+      <i class="fa-solid fa-droplet"></i>
+      <div class="env-label">Độ ẩm</div>
+      <div class="env-value humid"><span id="envHumid">--</span> %</div>
+    </div>
+    <div class="env-item">
+      <i class="fa-solid fa-sun"></i>
+      <div class="env-label">Ánh sáng</div>
+      <div class="env-value sun"><span id="envLight">--</span> %</div>
+    </div>
+    <div class="env-item">
+      <i class="fa-regular fa-clock"></i>
+      <div class="env-label">Thời gian</div>
+      <div class="env-value time" id="envTime">--:--:--</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ========== MODALS ========== -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeModal('profileModal')">×</button>
+    <div class="modal-title"><i class="fa-solid fa-id-card"></i> HỒ SƠ TÀI KHOẢN</div>
+    <div id="profileContent"></div>
+    <div class="modal-btn-group">
+      <button class="modal-btn primary" onclick="closeModal('profileModal')">ĐÓNG</button>
+    </div>
+  </div>
+</div>
+
+<div class="wheel-modal" id="wheelModal">
+  <div class="wheel-container">
+    <h2 style="color:#facc15;font-size:22px;margin-bottom:8px;">🎁 VÒNG QUAY MAY MẮN 🎁</h2>
+    <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">Nhấn QUAY để chọn người thắng ngẫu nhiên</p>
+    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+    <button class="btn-spin" id="btnSpinWheel" style="margin-top:15px;">QUAY NGAY 🎲</button>
+    <p id="wheelResult" style="margin-top:15px;font-weight:bold;font-size:17px;color:#38bdf8;min-height:28px;"></p>
+    <button class="btn btn-danger" style="margin-top:15px;" onclick="closeModal('wheelModal')">ĐÓNG</button>
+  </div>
+</div>
+
+<div class="fire-modal" id="fireModal">
+  <div class="fire-card">
+    <div class="fire-icon">🔥</div>
+    <div class="fire-title">CẢNH BÁO CHÁY / QUÁ NHIỆT</div>
+    <div class="fire-message" id="fireMessage">
+      Phát hiện nguy hiểm tại khu vực băng chuyền! Vui lòng kiểm tra ngay!
+    </div>
+    <button class="btn btn-success btn-block" onclick="dismissFireAlarm()">
+      <i class="fa-solid fa-check"></i> ĐÃ HIỂU & XÁC NHẬN
+    </button>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script>
+/* ================================================================
+   SMART CONVEYOR SYSTEM - MAIN SCRIPT
+   Kết nối: Web <-> Firebase <-> Python (fb.py) <-> ESP32
+   ================================================================ */
+
+// ====== CẤU HÌNH ======
+const FB_BASE = 'https://bangchuyen-97d77-default-rtdb.asia-southeast1.firebasedatabase.app';
+const FB_TELEMETRY = FB_BASE + '/telemetry.json';
+const FB_COMMAND = FB_BASE + '/control/command.json';
+const FB_ATTENDANCE = FB_BASE + '/attendance_logs.json';
+const DEFAULT_CAM_URL = 'http://53.210.12.160:8081';
+
+// ====== DANH SÁCH NHÂN VIÊN ======
+const WORKERS = {
+  trunganh:{mssv:"26151001",name:"Trung Anh"}, thienan:{mssv:"26151004",name:"Thiện Ân"},
+  giabao:{mssv:"26151008",name:"Gia Bảo"}, chicuong:{mssv:"26151013",name:"Chí Cường"},
+  khanhduy:{mssv:"26151014",name:"Khánh Duy"}, tandat:{mssv:"26151018",name:"Tấn Đạt"},
+  thanhdat:{mssv:"26151019",name:"Thành Đạt"}, tiendat:{mssv:"26151020",name:"Tiến Đạt"},
+  trido:{mssv:"26151021",name:"Trí Độ"}, anhduc:{mssv:"26151023",name:"Anh Đức"},
+  nhathao:{mssv:"26151024",name:"Nhật Hào"}, dinhhai:{mssv:"26151025",name:"Đình Hải"},
+  thienhao:{mssv:"26151027",name:"Thiên Hảo"}, ngochan:{mssv:"26151028",name:"Ngọc Hân"},
+  phuchien:{mssv:"26151029",name:"Phúc Hiển"}, trunghieu:{mssv:"26151031",name:"Trung Hiếu"},
+  thehoang:{mssv:"26151032",name:"Thế Hoàng"}, huyhoang:{mssv:"26151033",name:"Huy Hoàng"},
+  minhhoang:{mssv:"26151034",name:"Minh Hoàng"}, thaihoa:{mssv:"26151036",name:"Thái Hòa"},
+  ngochuan:{mssv:"26151037",name:"Ngọc Huân"}, conghuy:{mssv:"26151039",name:"Công Huy"},
+  giahuy:{mssv:"26151040",name:"Gia Huy"}, giahuy2:{mssv:"26151041",name:"Gia Huy 2"},
+  khachuy:{mssv:"26151042",name:"Khắc Huy"}, nhathuy:{mssv:"26151043",name:"Nhật Huy"},
+  thehuy:{mssv:"26151045",name:"Thế Huy"}, baokhang:{mssv:"26151052",name:"Bảo Khang"},
+  vietkhiem:{mssv:"26151056",name:"Viết Khiêm"}, dangkhoa:{mssv:"26151060",name:"Đăng Khoa"},
+  bakiet:{mssv:"26151063",name:"Bá Kiệt"}, thienloi:{mssv:"26151067",name:"Thiên Lợi"},
+  hoangnam:{mssv:"26151074",name:"Hoàng Nam"}, gianguyen:{mssv:"26151077",name:"Gia Nguyên"},
+  trungnguyen:{mssv:"26151078",name:"Trung Nguyên"}, binhnguyen:{mssv:"26151079",name:"Bình Nguyên"},
+  khoinguyen:{mssv:"26151080",name:"Khôi Nguyên"}, phunguyen:{mssv:"26151081",name:"Phú Nguyên"},
+  trinhan:{mssv:"26151082",name:"Trí Nhân"}, minhnhat:{mssv:"26151083",name:"Minh Nhật"},
+  tiennhat:{mssv:"26151084",name:"Tiến Nhật"}, longnhat:{mssv:"26151085",name:"Long Nhật"},
+  hoangphap:{mssv:"26151086",name:"Hoàng Pháp"}, chinhphat:{mssv:"26151087",name:"Chính Phát"},
+  huuphat:{mssv:"26151088",name:"Hữu Phát"}, haiphong:{mssv:"26151089",name:"Hải Phong"},
+  giaphu:{mssv:"26151090",name:"Gia Phú"}, hoangphu:{mssv:"26151092",name:"Hoàng Phú"},
+  minhphu:{mssv:"26151389",name:"Minh Phú"}, baphuc:{mssv:"26151093",name:"Bá Phúc"},
+  giaphuc:{mssv:"26151094",name:"Gia Phúc"}, xuanphuong:{mssv:"26151095",name:"Xuân Phương"},
+  vietphuong:{mssv:"26151096",name:"Việt Phương"}, danhquang:{mssv:"26151097",name:"Danh Quang"},
+  nhatquang:{mssv:"26151099",name:"Nhật Quang"}, tantai:{mssv:"26151108",name:"Tấn Tài"},
+  phuongtay:{mssv:"26151109",name:"Phương Tây"}, tienthanh:{mssv:"26151111",name:"Tiến Thành"},
+  xuanthanh:{mssv:"26151113",name:"Xuân Thành"}, vinhthinh:{mssv:"26151116",name:"Vĩnh Thịnh"},
+  phuctoan:{mssv:"26151120",name:"Phúc Toàn"}, minhtri:{mssv:"26151124",name:"Minh Trí"},
+  tantrong:{mssv:"26151125",name:"Tấn Trọng"}, nhutuan:{mssv:"26151128",name:"Như Tuấn"},
+  anhviet:{mssv:"26151130",name:"Anh Việt"}, nguyenvu:{mssv:"26151134",name:"Nguyên Vũ"}
+};
+
+const MANAGERS = { tavanphuong: { password: "tudonghoa", name: "Tấn Văn Phương", role: "MANAGER" } };
+const ADMINS = { zizki: { password: "1", name: "Admin Zizki", role: "ADMIN" } };
+
+// ====== STATE ======
+let currentUser = null;
+let currentTab = 'tabProduct';
+let fireAlertShown = false;
+let lastSyncAt = null;
+let qrScanner = null;
+let qrCooldown = false;
+let gateLockTimer = null;
+let localAttendance = [];
+
+// ====== UTILS ======
+function $(id){ return document.getElementById(id); }
+function toast(msg, type='info', dur=3500){
+  const c = $('toastContainer'); if(!c) return;
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='0.3s'; setTimeout(()=>t.remove(),350); }, dur);
+}
+function fmtTime(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+function fmtDate(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear(); }
+function nowStr(){ const d=new Date(); return fmtDate(d)+' '+fmtTime(d); }
+
+// ====== LOGIN ======
+function handleLogin(e){
+  e.preventDefault();
+  const u = $('username').value.trim().toLowerCase();
+  const p = $('password').value.trim();
+  const errEl = $('loginError');
+  errEl.style.display = 'none';
+
+  if(!u || !p){ errEl.textContent='Vui lòng nhập đầy đủ'; errEl.style.display='block'; return; }
+
+  // Ưu tiên admin > manager > worker
+  if(ADMINS[u] && ADMINS[u].password === p){
+    currentUser = { username: u, name: ADMINS[u].name, role: 'ADMIN', mssv: '-' };
+  } else if(MANAGERS[u] && MANAGERS[u].password === p){
+    currentUser = { username: u, name: MANAGERS[u].name, role: 'MANAGER', mssv: '-' };
+  } else if(WORKERS[u] && WORKERS[u].mssv === p){
+    currentUser = { username: u, name: WORKERS[u].name, role: 'WORKER', mssv: WORKERS[u].mssv };
+  } else {
+    errEl.textContent = 'Sai tên đăng nhập hoặc mật khẩu!';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  localStorage.setItem('scs_user', JSON.stringify(currentUser));
+  showDashboard();
+}
+
+function showDashboard(){
+  $('loginScreen').style.display = 'none';
+  $('dashboardScreen').classList.add('active');
+  $('userDisplayName').textContent = currentUser.name;
+  $('roleBadge').textContent = currentUser.role;
+  if(currentUser.role === 'MANAGER' || currentUser.role === 'ADMIN'){
+    $('managerActions').style.display = 'block';
+  }
+  initSyncLoop();
+  initQRScanner();
+  initWheel();
+  loadCamUrl();
+  toast('Chào mừng ' + currentUser.name + '!', 'success');
+}
+
+function logout(){
+  if(!confirm('Đăng xuất khỏi hệ thống?')) return;
+  localStorage.removeItem('scs_user');
+  currentUser = null;
+  location.reload();
+}
+
+function openProfile(){
+  if(!currentUser) return;
+  $('profileContent').innerHTML = `
+    <div class="profile-row"><span class="profile-label">Tên đăng nhập</span><span class="profile-value">${currentUser.username}</span></div>
+    <div class="profile-row"><span class="profile-label">Họ tên</span><span class="profile-value">${currentUser.name}</span></div>
+    <div class="profile-row"><span class="profile-label">Vai trò</span><span class="profile-value">${currentUser.role}</span></div>
+    <div class="profile-row"><span class="profile-label">MSSV</span><span class="profile-value">${currentUser.mssv}</span></div>
+    <div class="profile-row"><span class="profile-label">Đăng nhập lúc</span><span class="profile-value">${nowStr()}</span></div>
+  `;
+  $('profileModal').classList.add('active');
+}
+
+function closeModal(id){ const m=$(id); if(m) m.classList.remove('active'); }
+
+// ====== TAB SWITCHING ======
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(el=>el.classList.remove('active'));
+  const sec = $(tab); if(sec) sec.classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(el=>{
+    if(el.dataset.tab === tab) el.classList.add('active');
+  });
+  if(tab === 'tabQR') initQRScanner();
+  if(tab === 'tabAttendance') renderAttendance();
+}
+
+// ====== FIREBASE: GỬI LỆNH XUỐNG ESP32 ======
+function sendCommand(cmd){
+  if(!cmd) return;
+  fetch(FB_COMMAND, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(cmd)
+  })
+  .then(r=>{
+    if(r.ok){
+      toast('Đã gửi lệnh: ' + cmd, 'success');
+      console.log('[CMD SENT]', cmd);
+    } else {
+      toast('Gửi lệnh thất bại (HTTP ' + r.status + ')', 'error');
+    }
+  })
+  .catch(e=>{ toast('Lỗi mạng: ' + e.message, 'error'); });
+}
+
+function triggerBuzzer(){ if(confirm('BẬT CÒI BÁO ĐỘNG?')) sendCommand('ALARM_ON'); }
+function triggerEstop(){ if(confirm('⚠️ DỪNG KHẨN CẤP?\nMotor, relay sẽ tắt ngay lập tức!')) sendCommand('MOTOR_OFF'); }
+function triggerResume(){ if(confirm('KHÔI PHỤC BĂNG TẢI?')) sendCommand('MOTOR_ON'); }
+function resetCounters(){
+  if(!confirm('RESET toàn bộ bộ đếm về 0?\n(Web + Firebase + ESP32 sẽ đồng bộ)')) return;
+  // Reset hiển thị
+  ['countRed','countYellow','countWhite','countReject','tbRed','tbYellow','tbWhite','tbReject']
+    .forEach(id=>{ const e=$(id); if(e) e.textContent='0'; });
+  // Reset Firebase telemetry
+  fetch(FB_TELEMETRY, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({red:0, yellow:0, white:0, reject:0})
+  }).catch(()=>{});
+  // Gửi lệnh ESP32 tự reset
+  sendCommand('RESET_COUNTERS');
+}
+
+// ====== FIREBASE SYNC LOOP ======
+function initSyncLoop(){
+  syncFirebase();
+  setInterval(syncFirebase, 2000);
+  setInterval(updateClock, 1000);
+  updateClock();
+}
+
+function updateClock(){
+  const now = new Date();
+  const el = $('envTime');
+  if(el) el.textContent = fmtTime(now);
+}
+
+async function syncFirebase(){
+  try {
+    const res = await fetch(FB_TELEMETRY + '?t=' + Date.now(), {cache:'no-store'});
+    if(!res.ok){
+      $('fbStatusDisplay').textContent = 'Lỗi HTTP ' + res.status;
+      $('fbStatusDisplay').style.color = '#f87171';
+      return;
+    }
+    const data = await res.json();
+    lastSyncAt = new Date();
+    $('fbStatusDisplay').textContent = '🟢 Online';
+    $('fbStatusDisplay').style.color = '#4ade80';
+    $('fbLastSync').textContent = fmtTime(lastSyncAt);
+    $('fbUrlDisplay').textContent = 'bangchuyen-97d77';
+
+    if(!data) return;
+
+    // Cập nhật counters
+    const r = data.red || 0, y = data.yellow || 0, w = data.white || 0, rj = data.reject || 0;
+    updateCount('countRed', r); updateCount('tbRed', r);
+    updateCount('countYellow', y); updateCount('tbYellow', y);
+    updateCount('countWhite', w); updateCount('tbWhite', w);
+    updateCount('countReject', rj); updateCount('tbReject', rj);
+
+    // Cập nhật env
+    if(data.temp !== undefined){ const e=$('envTemp'); if(e) e.textContent = data.temp; }
+    if(data.humid !== undefined){ const e=$('envHumid'); if(e) e.textContent = data.humid; }
+    if(data.light !== undefined){ const e=$('envLight'); if(e) e.textContent = data.light; }
+
+    // Cập nhật conveyor status
+    updateConveyorStatus(data.conveyor_status || 'RUNNING');
+
+    // Fire alarm check
+    const isAlarm = data.alarm === true || data.reason === 'FIRE' || data.reason === 'OVERHEAT';
+    if(isAlarm && !fireAlertShown){
+      fireAlertShown = true;
+      showFireAlarm(data.reason || 'UNKNOWN', data.temp);
+    }
+    if(!isAlarm && fireAlertShown){
+      fireAlertShown = false;
+    }
+  } catch(e){
+    $('fbStatusDisplay').textContent = '🔴 Offline';
+    $('fbStatusDisplay').style.color = '#f87171';
+  }
+}
+
+function updateCount(id, val){
+  const e = $(id); if(e) e.textContent = val;
+}
+
+function updateConveyorStatus(status){
+  const ids = ['statusRed','statusYellow','statusWhite','statusReject'];
+  const badge = status === 'RUNNING' ? 'success' : (status === 'STOPPED_ALARM' ? 'warning' : 'danger');
+  const text = status === 'RUNNING' ? 'RUNNING' : (status === 'STOPPED_ALARM' ? 'ALARM' : 'STOPPED');
+  ids.forEach(id=>{
+    const e = $(id); if(e){ e.className = 'badge ' + badge; e.textContent = text; }
+  });
+}
+
+// ====== FIRE ALARM ======
+function showFireAlarm(reason, temp){
+  const msgs = {
+    'FIRE': '🔥 Phát hiện LỬA tại khu vực băng chuyền!',
+    'OVERHEAT': `🔥 Quá nhiệt! Nhiệt độ hiện tại: ${temp || '--'}°C (ngưỡng 45°C)`,
+    'MANUAL_ALARM': '🚨 Cảnh báo được kích hoạt từ xa!'
+  };
+  $('fireMessage').textContent = msgs[reason] || 'Phát hiện nguy hiểm!';
+  $('fireModal').classList.add('active');
+  toast('⚠️ CẢNH BÁO NGUY HIỂM', 'error', 5000);
+}
+
+function dismissFireAlarm(){
+  $('fireModal').classList.remove('active');
+  // Gửi lệnh ALARM_OFF để tắt còi (nếu đang kêu do web)
+  sendCommand('ALARM_OFF');
+}
+
+// ====== CAMERA ======
+function loadCamUrl(){
+  const saved = localStorage.getItem('scs_cam_url') || DEFAULT_CAM_URL;
+  $('camUrlInput').value = saved;
+  const img = $('cameraStream');
+  if(img) img.src = saved;
+}
+function applyCamUrl(){
+  const url = $('camUrlInput').value.trim();
+  if(!url){ toast('Nhập URL camera trước', 'warning'); return; }
+  localStorage.setItem('scs_cam_url', url);
+  $('cameraStream').src = url;
+  toast('Đã lưu URL camera', 'success');
+}
+
+// ====== QR SCANNER ======
+function initQRScanner(){
+  if(qrScanner) return;
+  const el = $('qr-reader'); if(!el) return;
+  if(typeof Html5QrcodeScanner === 'undefined') return;
+  try {
+    qrScanner = new Html5QrcodeScanner("qr-reader", { fps:10, qrbox:{width:220, height:220} }, false);
+    qrScanner.render(onScanSuccess, ()=>{});
+  } catch(e){ console.warn('[QR]', e); }
+}
+
+function onScanSuccess(text){
+  if(qrCooldown) return;
+  qrCooldown = true;
+  const today = fmtDate(new Date());
+  const key = 'scs_qr_' + currentUser.username + '_' + today;
+  if(localStorage.getItem(key) === 'true'){
+    $('qrFeedback').style.color = '#ef4444';
+    $('qrFeedback').textContent = '❌ Hôm nay bạn đã điểm danh rồi!';
+    setTimeout(()=>{ qrCooldown = false; }, 3000);
+    return;
+  }
+  localStorage.setItem(key, 'true');
+  appendAttendance(text);
+  sendCommand('SERVO_GATE_OPEN');
+  $('servoBadge').className = 'badge success';
+  $('servoBadge').textContent = 'MỞ (8s)';
+  $('qrFeedback').style.color = '#4ade80';
+  $('qrFeedback').textContent = '✅ Điểm danh thành công! Cửa sẽ mở 8 giây.';
+  if(gateLockTimer) clearTimeout(gateLockTimer);
+  gateLockTimer = setTimeout(()=>{
+    $('servoBadge').className = 'badge danger';
+    $('servoBadge').textContent = 'ĐÓNG';
+    $('qrFeedback').style.color = '#94a3b8';
+    $('qrFeedback').textContent = 'Cổng đã đóng. Chờ lượt tiếp theo...';
+  }, 8000);
+  setTimeout(()=>{ qrCooldown = false; }, 3000);
+}
+
+function appendAttendance(qrText){
+  const entry = {
+    uid: qrText,
+    name: currentUser.name,
+    mssv: currentUser.mssv,
+    time: nowStr(),
+    status: 'Authorized (QR)'
+  };
+  localAttendance.unshift(entry);
+  // Ghi lên Firebase
+  fetch(FB_ATTENDANCE, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(entry)
+  }).catch(()=>{});
+  // Lưu local
+  localStorage.setItem('scs_attendance', JSON.stringify(localAttendance.slice(0, 100)));
+  renderAttendance();
+}
+
+function renderAttendance(){
+  const tbody = $('attendanceBody'); if(!tbody) return;
+  let logs = [];
+  try {
+    const saved = localStorage.getItem('scs_attendance');
+    logs = saved ? JSON.parse(saved) : [];
+  } catch(e){ logs = []; }
+  if(!logs.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#64748b;">Chưa có lượt điểm danh nào</td></tr>';
+    return;
+  }
+  tbody.innerHTML = logs.map((l, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><b>${l.name}</b></td>
+      <td><code>${l.mssv}</code></td>
+      <td>${l.time}</td>
+      <td><span class="badge success">${l.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+function exportAttendance(){
+  let logs = [];
+  try { logs = JSON.parse(localStorage.getItem('scs_attendance') || '[]'); } catch(e){}
+  if(!logs.length){ toast('Chưa có dữ liệu', 'warning'); return; }
+  const rows = [['STT','Họ tên','MSSV','Thời gian','Trạng thái']];
+  logs.forEach((l,i)=>rows.push([i+1, l.name, l.mssv, l.time, l.status]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'attendance_' + fmtDate(new Date()).replace(/\//g,'-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Đã xuất CSV', 'success');
+}
+
+// ====== MINI GAME ======
+const GAME = {
+  canvas: null, ctx: null,
+  player: { x: 100, y: 0, vy: 0, size: 40, onGround: true },
+  flowers: [],
+  score: 0, lives: 3, timeLeft: 30,
+  running: false,
+  lastTick: 0, spawnTimer: 0,
+  gravity: 0.8, jumpForce: -14, groundY: 0
+};
+
+function initGame(){
+  GAME.canvas = $('gameCanvas');
+  if(!GAME.canvas) return;
+  GAME.ctx = GAME.canvas.getContext('2d');
+  GAME.groundY = GAME.canvas.height - 50;
+  GAME.player.y = GAME.groundY - GAME.player.size;
+  drawGame();
+}
+
+function startGame(){
+  if(GAME.running) return;
+  GAME.running = true;
+  GAME.score = 0; GAME.lives = 3; GAME.timeLeft = 30;
+  GAME.flowers = [];
+  GAME.player.x = 100;
+  GAME.player.y = GAME.groundY - GAME.player.size;
+  GAME.player.vy = 0;
+  GAME.player.onGround = true;
+  GAME.spawnTimer = 0;
+  GAME.lastTick = performance.now();
+  $('gameStatus').textContent = '🎮 Đang chơi! Nhấn SPACE để nhảy!';
+  $('gameStatus').style.color = '#4ade80';
+  updateGameUI();
+  requestAnimationFrame(gameLoop);
+}
+
+function jump(){
+  if(!GAME.running || !GAME.player.onGround) return;
+  GAME.player.vy = GAME.jumpForce;
+  GAME.player.onGround = false;
+}
+
+function gameLoop(t){
+  if(!GAME.running) return;
+  const dt = Math.min(50, t - GAME.lastTick) / 16.67;
+  GAME.lastTick = t;
+  
+  // Cập nhật thời gian
+  GAME.timeLeft -= (dt * 16.67) / 1000;
+  if(GAME.timeLeft <= 0){ endGame(); return; }
+  
+  // Player physics
+  const p = GAME.player;
+  p.vy += GAME.gravity * dt;
+  p.y += p.vy * dt;
+  if(p.y >= GAME.groundY - p.size){
+    p.y = GAME.groundY - p.size;
+    p.vy = 0;
+    p.onGround = true;
+  }
+  
+  // Spawn flowers
+  GAME.spawnTimer += dt;
+  if(GAME.spawnTimer > 40){
+    GAME.spawnTimer = 0;
+    GAME.flowers.push({
+      x: GAME.canvas.width + 20,
+      y: 100 + Math.random() * 80,
+      r: 15,
+      speed: 2 + Math.random() * 2
+    });
+  }
+  
+  // Update flowers
+  for(let i = GAME.flowers.length - 1; i >= 0; i--){
+    const f = GAME.flowers[i];
+    f.x -= f.speed * dt;
+    // Collision
+    const dx = (p.x + p.size/2) - f.x;
+    const dy = (p.y + p.size/2) - f.y;
+    if(Math.abs(dx) < p.size/2 + f.r && Math.abs(dy) < p.size/2 + f.r){
+      GAME.score++;
+      GAME.flowers.splice(i, 1);
+      continue;
+    }
+    if(f.x < -30){
+      GAME.lives--;
+      GAME.flowers.splice(i, 1);
+      if(GAME.lives <= 0){ endGame(); return; }
+    }
+  }
+  
+  updateGameUI();
+  drawGame();
+  requestAnimationFrame(gameLoop);
+}
+
+function drawGame(){
+  const c = GAME.ctx, cv = GAME.canvas;
+  if(!c) return;
+  // Background
+  c.fillStyle = '#87ceeb';
+  c.fillRect(0, 0, cv.width, cv.height);
+  // Ground
+  c.fillStyle = '#4ade80';
+  c.fillRect(0, GAME.groundY, cv.width, cv.height - GAME.groundY);
+  // Player (emoji)
+  c.font = (GAME.player.size) + 'px serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.fillText('🐰', GAME.player.x + GAME.player.size/2, GAME.player.y + GAME.player.size/2);
+  // Flowers
+  c.font = '30px serif';
+  GAME.flowers.forEach(f => {
+    c.fillText('🌸', f.x, f.y);
+  });
+}
+
+function endGame(){
+  GAME.running = false;
+  $('gameStatus').textContent = '🏁 Kết thúc! Điểm: ' + GAME.score;
+  $('gameStatus').style.color = '#facc15';
+  if(GAME.score > 0) toast('🎉 Ghi được ' + GAME.score + ' điểm!', 'success', 4000);
+}
+
+function updateGameUI(){
+  const s = $('gameScore'), t = $('gameTime'), l = $('gameLives');
+  if(s) s.textContent = GAME.score;
+  if(t) t.textContent = Math.max(0, Math.ceil(GAME.timeLeft));
+  if(l) l.textContent = GAME.lives;
+}
+
+// ====== WHEEL ======
+let wheelRotation = 0;
+let wheelSpinning = false;
+const wheelColors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+
+function initWheel(){
+  const cv = $('wheelCanvas');
+  if(!cv) return;
+  drawWheel();
+}
+
+function getWheelPlayers(){
+  let logs = [];
+  try { logs = JSON.parse(localStorage.getItem('scs_attendance') || '[]'); } catch(e){}
+  if(!logs.length){
+    return Object.values(WORKERS).slice(0, 8).map(w => w.name);
+  }
+  return logs.slice(0, 12).map(l => l.name);
+}
+
+function drawWheel(){
+  const cv = $('wheelCanvas'); if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const cx = cv.width/2, cy = cv.height/2;
+  const R = Math.min(cx, cy) - 20;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  
+  const players = getWheelPlayers();
+  const n = players.length;
+  if(n === 0){
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Chưa có người chơi', cx, cy);
+    return;
+  }
+  
+  const slice = (Math.PI * 2) / n;
+  for(let i = 0; i < n; i++){
+    const start = i * slice + wheelRotation;
+    const end = start + slice;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, start, end);
+    ctx.closePath();
+    ctx.fillStyle = wheelColors[i % wheelColors.length];
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Text
+    const mid = start + slice/2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(mid);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 14px sans-serif';
+    const txt = players[i].length > 12 ? players[i].slice(0,10) + '…' : players[i];
+    ctx.fillText(txt, R - 15, 0);
+    ctx.restore();
+  }
+  
+  // Center
+  ctx.beginPath();
+  ctx.arc(cx, cy, 30, 0, Math.PI*2);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
+  ctx.strokeStyle = '#facc15';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#facc15';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('🎁', cx, cy);
+  
+  // Pointer
+  ctx.fillStyle = '#facc15';
+  ctx.beginPath();
+  ctx.moveTo(cx, 10);
+  ctx.lineTo(cx - 12, 30);
+  ctx.lineTo(cx + 12, 30);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function openWheel(){
+  $('wheelModal').classList.add('active');
+  drawWheel();
+  $('wheelResult').textContent = '';
+}
+
+function spinWheel(){
+  if(wheelSpinning) return;
+  const players = getWheelPlayers();
+  if(players.length < 2){ toast('Cần ít nhất 2 người chơi', 'warning'); return; }
+  wheelSpinning = true;
+  const winnerIdx = Math.floor(Math.random() * players.length);
+  const n = players.length;
+  const slice = (Math.PI * 2) / n;
+  const targetBase = -Math.PI/2 - (winnerIdx * slice + slice/2);
+  const targetRot = targetBase + (5 + Math.floor(Math.random()*3)) * Math.PI * 2;
+  
+  const startRot = wheelRotation;
+  const startTime = performance.now();
+  const duration = 5000;
+  
+  function anim(t){
+    const elapsed = t - startTime;
+    const p = Math.min(1, elapsed / duration);
+    const ease = 1 - Math.pow(1 - p, 3);
+    wheelRotation = startRot + (targetRot - startRot) * ease;
+    drawWheel();
+    if(p < 1){
+      requestAnimationFrame(anim);
+    } else {
+      wheelSpinning = false;
+      $('wheelResult').textContent = '🎉 ' + players[winnerIdx];
+      toast('🎉 Người thắng: ' + players[winnerIdx], 'success', 5000);
+    }
+  }
+  requestAnimationFrame(anim);
+}
+
+// ====== INIT ======
+window.addEventListener('DOMContentLoaded', function(){
+  // Login form
+  $('loginForm').addEventListener('submit', handleLogin);
+  
+  // Menu items
+  document.querySelectorAll('.menu-item').forEach(el=>{
+    el.addEventListener('click', ()=>switchTab(el.dataset.tab));
+  });
+  
+  // Restore session
+  try {
+    const saved = localStorage.getItem('scs_user');
+    if(saved){
+      currentUser = JSON.parse(saved);
+      showDashboard();
+    }
+  } catch(e){}
+  
+  // Game init
+  initGame();
+  $('btnStartGame')?.addEventListener('click', startGame);
+  $('btnJumpGame')?.addEventListener('click', jump);
+  document.addEventListener('keydown', (e)=>{
+    if(e.code === 'Space' && currentTab === 'tabGame'){
+      e.preventDefault();
+      if(!GAME.running) startGame();
+      else jump();
+    }
+  });
+  
+  // Wheel
+  $('btnSpinWheel')?.addEventListener('click', spinWheel);
+  
+  // Esc closes modals
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape'){
+      document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active'));
+      document.querySelectorAll('.wheel-modal.active').forEach(m=>m.classList.remove('active'));
+    }
+  });
+  
+  console.log('[SCS] System ready. Firebase:', FB_BASE);
+});
+</script>
+</body>
+</html>
